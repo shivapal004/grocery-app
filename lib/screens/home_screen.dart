@@ -10,6 +10,7 @@ import 'package:grocery_app/widgets/feed_widget.dart';
 import 'package:grocery_app/widgets/on_sale_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../consts/consts.dart';
 import '../widgets/text_widget.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,12 +21,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<String> _offerImages = [
-    "assets/images/offers/Offer1.jpg",
-    "assets/images/offers/Offer2.jpg",
-    "assets/images/offers/Offer3.jpg",
-    "assets/images/offers/Offer4.jpg",
-  ];
+
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +46,12 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Swiper(
                 itemBuilder: (BuildContext context, int index) {
                   return Image.asset(
-                    _offerImages[index],
+                    Consts.offerImages[index],
                     fit: BoxFit.fill,
                   );
                 },
                 autoplay: true,
-                itemCount: _offerImages.length,
+                itemCount: Consts.offerImages.length,
                 pagination: const SwiperPagination(
                     // alignment: Alignment.bottomCenter,
                     builder: DotSwiperPaginationBuilder(

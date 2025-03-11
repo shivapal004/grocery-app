@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:grocery_app/widgets/back_widget.dart';
 import 'package:grocery_app/widgets/heart_btn.dart';
 import 'package:grocery_app/widgets/text_widget.dart';
 
@@ -22,15 +23,12 @@ class _ProductDetailsState extends State<ProductDetails> {
   final _quantityTextController = TextEditingController(text: '1');
   FocusNode _focusNode = FocusNode();
 
-
   @override
   void dispose() {
     _quantityTextController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -39,19 +37,12 @@ class _ProductDetailsState extends State<ProductDetails> {
     final Color color = utils.color;
     Size size = utils.screenSize;
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
         appBar: AppBar(
-          leading: InkWell(
-              onTap: () {
-                Navigator.canPop(context) ? Navigator.pop(context) : null;
-              },
-              child: Icon(
-                IconlyLight.arrowLeft2,
-                color: color,
-              )),
+          leading: BackWidget(),
         ),
         body: Column(
           children: [
@@ -127,7 +118,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 8),
-                            decoration: const BoxDecoration(color: Colors.green),
+                            decoration:
+                                const BoxDecoration(color: Colors.green),
                             child: TextWidget(
                               text: 'Free delivery',
                               color: Colors.white,
@@ -151,9 +143,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                               } else {
                                 setState(() {
                                   _quantityTextController.text =
-                                      (int.parse(_quantityTextController
-                                          .text) -
-                                          1)
+                                      (int.parse(_quantityTextController.text) -
+                                              1)
                                           .toString();
                                 });
                               }
@@ -185,9 +176,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                             onTap: () {
                               setState(() {
                                 _quantityTextController.text =
-                                    (int.parse(_quantityTextController
-                                        .text) +
-                                        1)
+                                    (int.parse(_quantityTextController.text) +
+                                            1)
                                         .toString();
                               });
                             },

@@ -11,6 +11,7 @@ class BackWidget extends StatelessWidget {
     Utils utils = Utils(context);
     final Color color = utils.color;
     return InkWell(
+      borderRadius: BorderRadius.circular(12),
         onTap: () {
           Navigator.canPop(context) ? Navigator.pop(context) : null;
         },

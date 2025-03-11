@@ -46,7 +46,7 @@ class _FeedWidgetState extends State<FeedWidget> {
         borderRadius: BorderRadius.circular(12),
         color: Colors.blueAccent.withOpacity(0.1),
         child: InkWell(
-          onTap: (){
+          onTap: () {
             GlobalMethods.navigateTo(context, ProductDetails.routeName);
           },
           borderRadius: BorderRadius.circular(12),

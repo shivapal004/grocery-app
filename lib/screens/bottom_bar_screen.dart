@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'cart/cart_screen.dart';
 
 class BottomBarScreen extends StatefulWidget {
+  static const routeName = '/BottomBarScreen';
   const BottomBarScreen({super.key});
 
   @override
@@ -62,7 +63,8 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
             BottomNavigationBarItem(
                 icon: Icon(
                     _selectedIndex == 2 ? IconlyBold.buy : IconlyLight.buy),
-                label: "Cart"),
+                label: "Cart"
+            ),
             BottomNavigationBarItem(
                 icon: Icon(
                     _selectedIndex == 3 ? IconlyBold.user2 : IconlyLight.user2),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:grocery_app/widgets/back_widget.dart';
 import 'package:grocery_app/widgets/on_sale_widget.dart';
 import 'package:grocery_app/widgets/text_widget.dart';
 
@@ -19,12 +20,7 @@ class OnSaleScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        leading: InkWell(
-          onTap: (){
-            Navigator.pop(context);
-          },
-            borderRadius: BorderRadius.circular(12),
-            child: const Icon(IconlyLight.arrowLeft2)),
+        leading: const BackWidget(),
         title: TextWidget(
           text: 'Products on sale',
           color: color,
