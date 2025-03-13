@@ -3,10 +3,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:grocery_app/provider/cart_provider.dart';
 import 'package:grocery_app/widgets/back_widget.dart';
 import 'package:grocery_app/widgets/heart_btn.dart';
 import 'package:grocery_app/widgets/text_widget.dart';
+import 'package:provider/provider.dart';
 
+import '../models/product_model.dart';
+import '../provider/product_provider.dart';
 import '../services/global_methods.dart';
 import '../services/utils.dart';
 
@@ -33,23 +37,32 @@ class _ProductDetailsState extends State<ProductDetails> {
   @override
   Widget build(BuildContext context) {
     Utils utils = Utils(context);
-    final theme = utils.getTheme;
     final Color color = utils.color;
     Size size = utils.screenSize;
+    final productProvider = Provider.of<ProductProvider>(context);
+    final cartProvider = Provider.of<CartProvider>(context);
+
+    final productId = ModalRoute.of(context)!.settings.arguments as String;
+    final getCurrentProduct = productProvider.findProdById(productId);
+    double usedPrice = getCurrentProduct.isOnSale
+        ? getCurrentProduct.salePrice
+        : getCurrentProduct.price;
+    double totalPrice = usedPrice * int.parse(_quantityTextController.text);
+    bool? isInCart = cartProvider.getCartItems.containsKey(getCurrentProduct.id);
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
         appBar: AppBar(
-          leading: BackWidget(),
+          leading: const BackWidget(),
         ),
         body: Column(
           children: [
             Flexible(
               flex: 2,
               child: FancyShimmerImage(
-                imageUrl: 'https://i.ibb.co/F0s3FHQ/Apricots.png',
+                imageUrl: getCurrentProduct.imageUrl,
                 boxFit: BoxFit.scaleDown,
                 width: size.width,
               ),
@@ -73,7 +86,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         children: [
                           Flexible(
                             child: TextWidget(
-                              text: 'title',
+                              text: getCurrentProduct.title,
                               color: color,
                               textSize: 20,
                               isTitle: true,
@@ -91,13 +104,13 @@ class _ProductDetailsState extends State<ProductDetails> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           TextWidget(
-                            text: '\$2.59',
+                            text: '\$${usedPrice.toStringAsFixed(2)}',
                             color: Colors.green,
                             textSize: 20,
                             isTitle: true,
                           ),
                           TextWidget(
-                            text: '/KG',
+                            text: getCurrentProduct.isPiece ? '/Piece' : '/KG',
                             color: color,
                             textSize: 12,
                           ),
@@ -105,9 +118,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                             width: 10,
                           ),
                           Visibility(
-                            visible: true,
+                            visible: getCurrentProduct.isOnSale ? true : false,
                             child: Text(
-                              '\$3.9',
+                              '\$${getCurrentProduct.price.toStringAsFixed(2)}',
                               style: TextStyle(
                                   fontSize: 15,
                                   color: color,
@@ -215,7 +228,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 child: Row(
                                   children: [
                                     TextWidget(
-                                      text: '\$2.59/',
+                                      text:
+                                          '\$${totalPrice.toStringAsFixed(2)}/',
                                       color: color,
                                       textSize: 20,
                                       isTitle: true,
@@ -234,14 +248,19 @@ class _ProductDetailsState extends State<ProductDetails> {
                             color: Colors.green,
                             borderRadius: BorderRadius.circular(12),
                             child: InkWell(
-                              // onTap: (){
-                              //   GlobalMethods.navigateTo(context, ProductDetails.routeName);
-                              // },
+                              onTap: isInCart
+                                  ? null
+                                  : () {
+                                cartProvider.addProductToCart(
+                                    productId: getCurrentProduct.id,
+                                    quantity:
+                                    int.parse(_quantityTextController.text));
+                              },
                               borderRadius: BorderRadius.circular(12),
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: TextWidget(
-                                    text: 'Add to cart',
+                                    text: isInCart ? 'In cart' : 'Add to cart',
                                     color: Colors.white,
                                     textSize: 20),
                               ),

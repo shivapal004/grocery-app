@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:grocery_app/consts/consts.dart';
+import 'package:grocery_app/models/product_model.dart';
+import 'package:grocery_app/provider/product_provider.dart';
 import 'package:grocery_app/widgets/back_widget.dart';
+import 'package:provider/provider.dart';
 
 import '../services/utils.dart';
 import '../widgets/feed_widget.dart';
@@ -29,9 +32,10 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   Widget build(BuildContext context) {
     Utils utils = Utils(context);
-    final theme = utils.getTheme;
     final Color color = utils.color;
     Size size = utils.screenSize;
+    final productProvider = Provider.of<ProductProvider>(context);
+    List<ProductModel> allProducts = productProvider.getProducts;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -74,8 +78,9 @@ class _FeedScreenState extends State<FeedScreen> {
                           },
                           icon: Icon(
                             Icons.close,
-                            color:
-                                _searchTextFocusNode.hasFocus ? Colors.red : color,
+                            color: _searchTextFocusNode.hasFocus
+                                ? Colors.red
+                                : color,
                           ))),
                 ),
               ),
@@ -86,8 +91,11 @@ class _FeedScreenState extends State<FeedScreen> {
               physics: const NeverScrollableScrollPhysics(),
               childAspectRatio: size.width / (size.height * .55),
               crossAxisCount: 2,
-              children: List.generate(10, (index) {
-                return const FeedWidget();
+              children: List.generate(allProducts.length, (index) {
+                return ChangeNotifierProvider.value(
+                  value: allProducts[index],
+                  child: const FeedWidget(),
+                );
               }),
             ),
           ],

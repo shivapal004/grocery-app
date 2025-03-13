@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:grocery_app/inner_screens/feed_screen.dart';
 import 'package:grocery_app/inner_screens/on_sale_screen.dart';
-import 'package:grocery_app/provider/dark_theme_provider.dart';
 import 'package:grocery_app/services/global_methods.dart';
 import 'package:grocery_app/services/utils.dart';
 import 'package:grocery_app/widgets/feed_widget.dart';
@@ -11,9 +10,12 @@ import 'package:grocery_app/widgets/on_sale_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../consts/consts.dart';
+import '../models/product_model.dart';
+import '../provider/product_provider.dart';
 import '../widgets/text_widget.dart';
 
 class HomeScreen extends StatefulWidget {
+  static const routeName = '/HomeScreen';
   const HomeScreen({super.key});
 
   @override
@@ -21,14 +23,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
-
   @override
   Widget build(BuildContext context) {
     Utils utils = Utils(context);
     final themeState = utils.getTheme;
     Size size = utils.screenSize;
     final Color color = utils.color;
+    final productProvider = Provider.of<ProductProvider>(context);
+    List<ProductModel> allProducts = productProvider.getProducts;
+    List<ProductModel> productOnSale = productProvider.getOnSaleProducts;
 
     return Scaffold(
       appBar: AppBar(
@@ -93,10 +96,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: SizedBox(
                     height: size.height * .22,
                     child: ListView.builder(
-                        itemCount: 10,
+                        itemCount: productOnSale.length < 10
+                            ? productOnSale.length
+                            : 10,
                         scrollDirection: Axis.horizontal,
                         itemBuilder: (ctx, index) {
-                          return const OnSaleWidget();
+                          return ChangeNotifierProvider.value(
+                              value: productOnSale[index],
+                              child: const OnSaleWidget());
                         }),
                   ),
                 ),
@@ -133,8 +140,12 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: EdgeInsets.zero,
               childAspectRatio: size.width / (size.height * .55),
               crossAxisCount: 2,
-              children: List.generate(10, (index) {
-                return const FeedWidget();
+              children: List.generate(
+                  allProducts.length < 4 ? 4 : allProducts.length, (index) {
+                return ChangeNotifierProvider.value(
+                  value: allProducts[index],
+                  child: const FeedWidget(),
+                );
               }),
             )
           ],

@@ -5,9 +5,11 @@ import 'package:grocery_app/widgets/heart_btn.dart';
 import 'package:grocery_app/widgets/price_widget.dart';
 import 'package:grocery_app/widgets/text_widget.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
+import 'package:provider/provider.dart';
 
 import '../inner_screens/product_details.dart';
-import '../services/global_methods.dart';
+import '../models/product_model.dart';
+import '../provider/cart_provider.dart';
 
 class OnSaleWidget extends StatefulWidget {
   const OnSaleWidget({super.key});
@@ -17,12 +19,15 @@ class OnSaleWidget extends StatefulWidget {
 }
 
 class _OnSaleWidgetState extends State<OnSaleWidget> {
+
   @override
   Widget build(BuildContext context) {
     Utils utils = Utils(context);
-    final theme = utils.getTheme;
     final Color color = utils.color;
     Size size = utils.screenSize;
+    final productModel = Provider.of<ProductModel>(context);
+    final cartProvider = Provider.of<CartProvider>(context);
+    bool? isInCart = cartProvider.getCartItems.containsKey(productModel.id);
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: Material(
@@ -32,7 +37,7 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: (){
-            GlobalMethods.navigateTo(context, ProductDetails.routeName);
+            Navigator.pushNamed(context, ProductDetails.routeName, arguments: productModel.id);
           },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -43,7 +48,7 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
                 Row(
                   children: [
                     FancyShimmerImage(
-                      imageUrl: 'https://i.ibb.co/F0s3FHQ/Apricots.png',
+                      imageUrl: productModel.imageUrl,
                       height: size.width * .22,
                       width: size.width * .22,
                       boxFit: BoxFit.fill,
@@ -54,7 +59,7 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
                     Column(
                       children: [
                         TextWidget(
-                          text: '1KG',
+                          text: productModel.isPiece ? '1Piece' : '1KG',
                           color: color,
                           textSize: 22,
                           isTitle: true,
@@ -62,10 +67,14 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
                         Row(
                           children: [
                             GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  cartProvider.addProductToCart(
+                                      productId: productModel.id,
+                                      quantity: 1);
+                                },
                                 child: Icon(
-                                  IconlyLight.bag2,
-                                  color: color,
+                                  isInCart? IconlyBold.bag2 : IconlyLight.bag2,
+                                  color: isInCart ? Colors.green : color,
                                   size: 22,
                                 )),
                             const HeartBtn(),
@@ -75,9 +84,9 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
                     ),
                   ],
                 ),
-                const PriceWidget(
-                  salePrice: 2.99,
-                  price: 5.9,
+                 PriceWidget(
+                  salePrice: productModel.salePrice,
+                  price: productModel.price,
                   textPrice: '1',
                   isOnSale: true,
                 ),
@@ -85,7 +94,7 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
                   height: 5,
                 ),
                 TextWidget(
-                  text: 'Product title',
+                  text: productModel.title,
                   color: color,
                   textSize: 16,
                   isTitle: true,

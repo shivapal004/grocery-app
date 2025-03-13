@@ -39,6 +39,7 @@ class GlobalMethods {
               TextButton(
                   onPressed: () {
                     function();
+                    Navigator.canPop(context) ? Navigator.pop(context) : null;
                   },
                   child:
                       TextWidget(text: 'Ok', color: Colors.red, textSize: 18))

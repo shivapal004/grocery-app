@@ -2,15 +2,20 @@ import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:grocery_app/provider/product_provider.dart';
 import 'package:grocery_app/widgets/heart_btn.dart';
 import 'package:grocery_app/widgets/text_widget.dart';
+import 'package:provider/provider.dart';
 
 import '../../inner_screens/product_details.dart';
-import '../../services/global_methods.dart';
+import '../../models/cart_model.dart';
+import '../../provider/cart_provider.dart';
 import '../../services/utils.dart';
 
 class CartWidget extends StatefulWidget {
-  const CartWidget({super.key});
+  const CartWidget({super.key, required this.quantity});
+
+  final int quantity;
 
   @override
   State<CartWidget> createState() => _CartWidgetState();
@@ -21,7 +26,7 @@ class _CartWidgetState extends State<CartWidget> {
 
   @override
   void initState() {
-    _quantityTextController.text = '1';
+    _quantityTextController.text = widget.quantity.toString();
     super.initState();
   }
 
@@ -34,12 +39,19 @@ class _CartWidgetState extends State<CartWidget> {
   @override
   Widget build(BuildContext context) {
     Utils utils = Utils(context);
-    final theme = utils.getTheme;
     final Color color = utils.color;
     Size size = utils.screenSize;
+    final productProvider = Provider.of<ProductProvider>(context);
+    final cartModel = Provider.of<CartModel>(context);
+    final getCurrentProduct = productProvider.findProdById(cartModel.productId);
+    double usedPrice = getCurrentProduct.isOnSale
+        ? getCurrentProduct.salePrice
+        : getCurrentProduct.price;
+    final cartProvider = Provider.of<CartProvider>(context);
     return GestureDetector(
       onTap: () {
-        GlobalMethods.navigateTo(context, ProductDetails.routeName);
+        Navigator.pushNamed(context, ProductDetails.routeName,
+            arguments: cartModel.productId);
       },
       child: Row(
         children: [
@@ -56,7 +68,7 @@ class _CartWidgetState extends State<CartWidget> {
                       height: size.width * .25,
                       width: size.width * .25,
                       child: FancyShimmerImage(
-                        imageUrl: 'https://i.ibb.co/F0s3FHQ/Apricots.png',
+                        imageUrl: getCurrentProduct.imageUrl,
                         boxFit: BoxFit.fill,
                       ),
                     ),
@@ -64,7 +76,7 @@ class _CartWidgetState extends State<CartWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextWidget(
-                          text: 'Title',
+                          text: getCurrentProduct.title,
                           color: color,
                           textSize: 18,
                           isTitle: true,
@@ -79,6 +91,8 @@ class _CartWidgetState extends State<CartWidget> {
                                       return;
                                     } else {
                                       setState(() {
+                                        cartProvider.reduceQuantityByOne(
+                                            cartModel.productId);
                                         _quantityTextController.text =
                                             (int.parse(_quantityTextController
                                                         .text) -
@@ -112,6 +126,8 @@ class _CartWidgetState extends State<CartWidget> {
                               ),
                               quantityController(
                                   onTap: () {
+                                    cartProvider.increaseQuantityByOne(
+                                        cartModel.productId);
                                     setState(() {
                                       _quantityTextController.text = (int.parse(
                                                   _quantityTextController
@@ -132,8 +148,11 @@ class _CartWidgetState extends State<CartWidget> {
                       padding: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Column(
                         children: [
-                          const InkWell(
-                            child: Icon(
+                          InkWell(
+                            onTap: () {
+                              cartProvider.removeOneItem(cartModel.productId);
+                            },
+                            child: const Icon(
                               CupertinoIcons.cart_badge_minus,
                               color: Colors.red,
                             ),
@@ -143,7 +162,7 @@ class _CartWidgetState extends State<CartWidget> {
                           ),
                           const HeartBtn(),
                           TextWidget(
-                            text: '\$0.29',
+                            text: '\$${usedPrice.toStringAsFixed(2)}',
                             color: color,
                             textSize: 16,
                             maxLines: 1,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grocery_app/inner_screens/feed_screen.dart';
+import 'package:grocery_app/screens/bottom_bar_screen.dart';
+import 'package:grocery_app/screens/home_screen.dart';
 import 'package:grocery_app/services/global_methods.dart';
 import 'package:grocery_app/widgets/text_widget.dart';
 

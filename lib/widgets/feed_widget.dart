@@ -1,17 +1,20 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:grocery_app/inner_screens/product_details.dart';
+import 'package:grocery_app/models/product_model.dart';
+import 'package:grocery_app/provider/cart_provider.dart';
 import 'package:grocery_app/services/global_methods.dart';
 import 'package:grocery_app/widgets/heart_btn.dart';
 import 'package:grocery_app/widgets/price_widget.dart';
 import 'package:grocery_app/widgets/text_widget.dart';
+import 'package:provider/provider.dart';
 
 import '../services/utils.dart';
 
 class FeedWidget extends StatefulWidget {
-  const FeedWidget({super.key});
+  const FeedWidget({
+    super.key,
+  });
 
   @override
   State<FeedWidget> createState() => _FeedWidgetState();
@@ -37,9 +40,11 @@ class _FeedWidgetState extends State<FeedWidget> {
   @override
   Widget build(BuildContext context) {
     Utils utils = Utils(context);
-    final theme = utils.getTheme;
     final Color color = utils.color;
     Size size = utils.screenSize;
+    final productModel = Provider.of<ProductModel>(context);
+    final cartProvider = Provider.of<CartProvider>(context);
+    bool? isInCart = cartProvider.getCartItems.containsKey(productModel.id);
     return Padding(
       padding: const EdgeInsets.all(6.0),
       child: Material(
@@ -47,13 +52,14 @@ class _FeedWidgetState extends State<FeedWidget> {
         color: Colors.blueAccent.withOpacity(0.1),
         child: InkWell(
           onTap: () {
-            GlobalMethods.navigateTo(context, ProductDetails.routeName);
+            Navigator.pushNamed(context, ProductDetails.routeName,
+                arguments: productModel.id);
           },
           borderRadius: BorderRadius.circular(12),
           child: Column(
             children: [
               FancyShimmerImage(
-                imageUrl: 'https://i.ibb.co/F0s3FHQ/Apricots.png',
+                imageUrl: productModel.imageUrl,
                 height: size.width * .21,
                 width: size.width * .2,
                 boxFit: BoxFit.fill,
@@ -67,7 +73,7 @@ class _FeedWidgetState extends State<FeedWidget> {
                     Flexible(
                       flex: 3,
                       child: TextWidget(
-                        text: 'Cucumbers',
+                        text: productModel.title,
                         color: color,
                         maxLines: 1,
                         textSize: 18,
@@ -89,10 +95,10 @@ class _FeedWidgetState extends State<FeedWidget> {
                     Flexible(
                       flex: 3,
                       child: PriceWidget(
-                        salePrice: 2.99,
-                        price: 5.9,
+                        salePrice: productModel.salePrice,
+                        price: productModel.price,
                         textPrice: _quantityTextController.text,
-                        isOnSale: true,
+                        isOnSale: productModel.isOnSale,
                       ),
                     ),
                     // const SizedBox(
@@ -105,7 +111,7 @@ class _FeedWidgetState extends State<FeedWidget> {
                             flex: 6,
                             child: FittedBox(
                                 child: TextWidget(
-                              text: 'KG',
+                              text: productModel.isPiece ? 'piece' : 'KG',
                               color: color,
                               textSize: 16,
                               isTitle: true,
@@ -125,7 +131,14 @@ class _FeedWidgetState extends State<FeedWidget> {
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: isInCart
+                      ? null
+                      : () {
+                          cartProvider.addProductToCart(
+                              productId: productModel.id,
+                              quantity:
+                                  int.parse(_quantityTextController.text));
+                        },
                   style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(
                           Theme.of(context).cardColor),
@@ -139,7 +152,7 @@ class _FeedWidgetState extends State<FeedWidget> {
                         ),
                       )),
                   child: TextWidget(
-                    text: 'Add to cart',
+                    text: isInCart ? 'In cart' : 'Add to cart',
                     color: color,
                     textSize: 18,
                     isTitle: true,

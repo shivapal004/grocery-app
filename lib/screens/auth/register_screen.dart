@@ -101,7 +101,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     height: 35,
                   ),
                   TextWidget(
-                    text: 'Welcome Back',
+                    text: 'Welcome',
                     color: Colors.white,
                     textSize: 30,
                     isTitle: true,
