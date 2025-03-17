@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:grocery_app/inner_screens/feed_screen.dart';
@@ -6,6 +7,8 @@ import 'package:grocery_app/inner_screens/product_details.dart';
 import 'package:grocery_app/provider/cart_provider.dart';
 import 'package:grocery_app/provider/dark_theme_provider.dart';
 import 'package:grocery_app/provider/product_provider.dart';
+import 'package:grocery_app/provider/viewed_provider.dart';
+import 'package:grocery_app/provider/wishlist_provider.dart';
 import 'package:grocery_app/screens/auth/forgot_password_screen.dart';
 import 'package:grocery_app/screens/auth/login_screen.dart';
 import 'package:grocery_app/screens/auth/register_screen.dart';
@@ -17,10 +20,15 @@ import 'package:grocery_app/screens/wishlist/wishlist_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'consts/theme_data.dart';
+import 'firebase_options.dart';
 import 'inner_screens/category_screen.dart';
 
-void main() {
+void main() async{
+
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
     runApp(const MyApp());
@@ -61,6 +69,12 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) {
           return CartProvider();
         }),
+        ChangeNotifierProvider(create: (_){
+          return WishlistProvider();
+        }),
+        ChangeNotifierProvider(create: (_){
+          return ViewedProvider();
+        })
       ],
       child: Consumer<DarkThemeProvider>(
         builder: (context, themeProvider, child) {
@@ -68,7 +82,7 @@ class _MyAppState extends State<MyApp> {
             title: 'Flutter Demo',
             debugShowCheckedModeBanner: false,
             theme: Styles.themeData(themeProvider.getDarkTheme, context),
-            home: const BottomBarScreen(),
+            home: const LoginScreen(),
             routes: {
               HomeScreen.routeName: (ctx) => const HomeScreen(),
               OnSaleScreen.routeName: (ctx) => const OnSaleScreen(),

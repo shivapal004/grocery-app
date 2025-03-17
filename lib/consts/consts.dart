@@ -1,5 +1,3 @@
-import 'package:grocery_app/models/product_model.dart';
-
 class Consts {
   static List<String> offerImages = [
     "assets/images/offers/Offer1.jpg",

@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../../inner_screens/product_details.dart';
 import '../../models/cart_model.dart';
 import '../../provider/cart_provider.dart';
+import '../../provider/wishlist_provider.dart';
 import '../../services/utils.dart';
 
 class CartWidget extends StatefulWidget {
@@ -48,6 +49,9 @@ class _CartWidgetState extends State<CartWidget> {
         ? getCurrentProduct.salePrice
         : getCurrentProduct.price;
     final cartProvider = Provider.of<CartProvider>(context);
+    final wishlistProvider = Provider.of<WishlistProvider>(context);
+    bool? isInWishlist =
+    wishlistProvider.getWishlistItems.containsKey(getCurrentProduct.id);
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, ProductDetails.routeName,
@@ -160,7 +164,7 @@ class _CartWidgetState extends State<CartWidget> {
                           const SizedBox(
                             height: 5,
                           ),
-                          const HeartBtn(),
+                           HeartBtn(productId: getCurrentProduct.id, isInWishlist: isInWishlist,),
                           TextWidget(
                             text: '\$${usedPrice.toStringAsFixed(2)}',
                             color: color,

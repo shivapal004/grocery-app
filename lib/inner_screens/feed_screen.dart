@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:grocery_app/consts/consts.dart';
 import 'package:grocery_app/models/product_model.dart';
 import 'package:grocery_app/provider/product_provider.dart';
 import 'package:grocery_app/widgets/back_widget.dart';
@@ -10,7 +9,7 @@ import '../widgets/feed_widget.dart';
 import '../widgets/text_widget.dart';
 
 class FeedScreen extends StatefulWidget {
-  static const routeName = '/feedScreen';
+  static const routeName = '/FeedScreen';
 
   const FeedScreen({super.key});
 
@@ -39,7 +38,7 @@ class _FeedScreenState extends State<FeedScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        leading: BackWidget(),
+        leading: const BackWidget(),
         title: TextWidget(
           text: 'All Products',
           color: color,

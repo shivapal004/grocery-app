@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:grocery_app/provider/dark_theme_provider.dart';
+import 'package:grocery_app/screens/auth/login_screen.dart';
 import 'package:grocery_app/screens/orders/orders_screen.dart';
 import 'package:grocery_app/screens/viewed_recently/viewed_screen.dart';
 import 'package:grocery_app/screens/wishlist/wishlist_screen.dart';
@@ -9,6 +11,7 @@ import 'package:grocery_app/services/global_methods.dart';
 import 'package:grocery_app/widgets/text_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../consts/firebase_consts.dart';
 import '../services/utils.dart';
 
 class UserScreen extends StatefulWidget {
@@ -21,6 +24,8 @@ class UserScreen extends StatefulWidget {
 class _UserScreenState extends State<UserScreen> {
   final TextEditingController _addressController =
       TextEditingController(text: '');
+
+  User? user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -125,14 +130,23 @@ class _UserScreenState extends State<UserScreen> {
               //       });
               //     }),
               _listTiles(
-                  title: 'Logout',
+                  title: user == null ? 'Login' : 'Logout',
                   color: color,
-                  icon: IconlyLight.logout,
+                  icon: user == null ? IconlyLight.login : IconlyLight.logout,
                   onPressed: () {
+                    if (user == null) {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const LoginScreen()));
+                      return;
+                    }
                     GlobalMethods.warningDialog(
                         title: 'Sign out',
-                        subtitle: 'DO you want to sign out',
-                        function: () {},
+                        subtitle: 'Do you want to sign out?',
+                        function: () async {
+                          await auth.signOut();
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const LoginScreen()));
+                        },
                         context: context);
                   }),
             ],

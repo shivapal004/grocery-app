@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:grocery_app/services/utils.dart';
@@ -7,9 +8,12 @@ import 'package:grocery_app/widgets/text_widget.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:provider/provider.dart';
 
+import '../consts/firebase_consts.dart';
 import '../inner_screens/product_details.dart';
 import '../models/product_model.dart';
 import '../provider/cart_provider.dart';
+import '../provider/wishlist_provider.dart';
+import '../services/global_methods.dart';
 
 class OnSaleWidget extends StatefulWidget {
   const OnSaleWidget({super.key});
@@ -19,7 +23,6 @@ class OnSaleWidget extends StatefulWidget {
 }
 
 class _OnSaleWidgetState extends State<OnSaleWidget> {
-
   @override
   Widget build(BuildContext context) {
     Utils utils = Utils(context);
@@ -28,6 +31,9 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
     final productModel = Provider.of<ProductModel>(context);
     final cartProvider = Provider.of<CartProvider>(context);
     bool? isInCart = cartProvider.getCartItems.containsKey(productModel.id);
+    final wishlistProvider = Provider.of<WishlistProvider>(context);
+    bool? isInWishlist =
+        wishlistProvider.getWishlistItems.containsKey(productModel.id);
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: Material(
@@ -36,8 +42,9 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: (){
-            Navigator.pushNamed(context, ProductDetails.routeName, arguments: productModel.id);
+          onTap: () {
+            Navigator.pushNamed(context, ProductDetails.routeName,
+                arguments: productModel.id);
           },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -67,24 +74,36 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
                         Row(
                           children: [
                             GestureDetector(
-                                onTap: () {
-                                  cartProvider.addProductToCart(
-                                      productId: productModel.id,
-                                      quantity: 1);
-                                },
+                                onTap: isInCart
+                                    ? null
+                                    : () {
+                                        final User? user = auth.currentUser;
+                                        if (user == null) {
+                                          GlobalMethods.errorDialog(
+                                              subtitle:
+                                                  "No user found, please login first",
+                                              context: context);
+                                        }
+                                        cartProvider.addProductToCart(
+                                            productId: productModel.id,
+                                            quantity: 1);
+                                      },
                                 child: Icon(
-                                  isInCart? IconlyBold.bag2 : IconlyLight.bag2,
+                                  isInCart ? IconlyBold.bag2 : IconlyLight.bag2,
                                   color: isInCart ? Colors.green : color,
                                   size: 22,
                                 )),
-                            const HeartBtn(),
+                            HeartBtn(
+                              productId: productModel.id,
+                              isInWishlist: isInWishlist,
+                            ),
                           ],
                         ),
                       ],
                     ),
                   ],
                 ),
-                 PriceWidget(
+                PriceWidget(
                   salePrice: productModel.salePrice,
                   price: productModel.price,
                   textPrice: '1',

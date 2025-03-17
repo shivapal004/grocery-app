@@ -1,16 +1,17 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:grocery_app/provider/cart_provider.dart';
+import 'package:grocery_app/provider/viewed_provider.dart';
 import 'package:grocery_app/widgets/back_widget.dart';
 import 'package:grocery_app/widgets/heart_btn.dart';
 import 'package:grocery_app/widgets/text_widget.dart';
 import 'package:provider/provider.dart';
-
-import '../models/product_model.dart';
+import '../consts/firebase_consts.dart';
 import '../provider/product_provider.dart';
+import '../provider/wishlist_provider.dart';
 import '../services/global_methods.dart';
 import '../services/utils.dart';
 
@@ -25,7 +26,7 @@ class ProductDetails extends StatefulWidget {
 
 class _ProductDetailsState extends State<ProductDetails> {
   final _quantityTextController = TextEditingController(text: '1');
-  FocusNode _focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void dispose() {
@@ -48,10 +49,16 @@ class _ProductDetailsState extends State<ProductDetails> {
         ? getCurrentProduct.salePrice
         : getCurrentProduct.price;
     double totalPrice = usedPrice * int.parse(_quantityTextController.text);
-    bool? isInCart = cartProvider.getCartItems.containsKey(getCurrentProduct.id);
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
+    bool? isInCart =
+        cartProvider.getCartItems.containsKey(getCurrentProduct.id);
+    final wishlistProvider = Provider.of<WishlistProvider>(context);
+    final viewedProdProvider = Provider.of<ViewedProvider>(context);
+    bool? isInWishlist =
+        wishlistProvider.getWishlistItems.containsKey(getCurrentProduct.id);
+    return WillPopScope(
+      onWillPop: () async {
+        viewedProdProvider.addProductToHistory(productId: productId);
+        return true;
       },
       child: Scaffold(
         appBar: AppBar(
@@ -92,7 +99,10 @@ class _ProductDetailsState extends State<ProductDetails> {
                               isTitle: true,
                             ),
                           ),
-                          const HeartBtn()
+                          HeartBtn(
+                            productId: getCurrentProduct.id,
+                            isInWishlist: isInWishlist,
+                          )
                         ],
                       ),
                     ),
@@ -251,11 +261,18 @@ class _ProductDetailsState extends State<ProductDetails> {
                               onTap: isInCart
                                   ? null
                                   : () {
-                                cartProvider.addProductToCart(
-                                    productId: getCurrentProduct.id,
-                                    quantity:
-                                    int.parse(_quantityTextController.text));
-                              },
+                                      final User? user = auth.currentUser;
+                                      if (user == null) {
+                                        GlobalMethods.errorDialog(
+                                            subtitle:
+                                                "No user found, please login first",
+                                            context: context);
+                                      }
+                                      cartProvider.addProductToCart(
+                                          productId: getCurrentProduct.id,
+                                          quantity: int.parse(
+                                              _quantityTextController.text));
+                                    },
                               borderRadius: BorderRadius.circular(12),
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
