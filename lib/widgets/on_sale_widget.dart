@@ -12,6 +12,7 @@ import '../consts/firebase_consts.dart';
 import '../inner_screens/product_details.dart';
 import '../models/product_model.dart';
 import '../provider/cart_provider.dart';
+import '../provider/viewed_provider.dart';
 import '../provider/wishlist_provider.dart';
 import '../services/global_methods.dart';
 
@@ -32,6 +33,7 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
     final cartProvider = Provider.of<CartProvider>(context);
     bool? isInCart = cartProvider.getCartItems.containsKey(productModel.id);
     final wishlistProvider = Provider.of<WishlistProvider>(context);
+    final viewedProdProvider = Provider.of<ViewedProvider>(context);
     bool? isInWishlist =
         wishlistProvider.getWishlistItems.containsKey(productModel.id);
     return Padding(
@@ -43,6 +45,7 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () {
+            viewedProdProvider.addProductToHistory(productId: productModel.id);
             Navigator.pushNamed(context, ProductDetails.routeName,
                 arguments: productModel.id);
           },
@@ -76,7 +79,7 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
                             GestureDetector(
                                 onTap: isInCart
                                     ? null
-                                    : () {
+                                    : () async{
                                         final User? user = auth.currentUser;
                                         if (user == null) {
                                           GlobalMethods.errorDialog(
@@ -84,9 +87,10 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
                                                   "No user found, please login first",
                                               context: context);
                                         }
-                                        cartProvider.addProductToCart(
+                                        await GlobalMethods.addToCart(
                                             productId: productModel.id,
-                                            quantity: 1);
+                                            quantity: 1, context: context);
+                                        await cartProvider.fetchCart();
                                       },
                                 child: Icon(
                                   isInCart ? IconlyBold.bag2 : IconlyLight.bag2,

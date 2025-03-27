@@ -4,15 +4,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_app/screens/auth/forgot_password_screen.dart';
 import 'package:grocery_app/screens/auth/register_screen.dart';
-import 'package:grocery_app/screens/bottom_bar_screen.dart';
 import 'package:grocery_app/screens/loading_manager.dart';
 import 'package:grocery_app/services/global_methods.dart';
 import 'package:grocery_app/widgets/auth_button.dart';
 import 'package:grocery_app/widgets/google_btn.dart';
 import 'package:grocery_app/widgets/text_widget.dart';
-
 import '../../consts/consts.dart';
 import '../../consts/firebase_consts.dart';
+import '../../fetch_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/LoginScreen';
@@ -53,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
             email: _emailController.text.toLowerCase().trim(),
             password: _passwordController.text.trim());
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const BottomBarScreen()));
+            MaterialPageRoute(builder: (context) => const FetchScreen()));
       } on FirebaseException catch (error) {
         GlobalMethods.errorDialog(
             subtitle: '${error.message}', context: context);
@@ -189,7 +188,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                         color: Colors.white,
                                       )),
                                   hintText: 'Password',
-                                  hintStyle: const TextStyle(color: Colors.white),
+                                  hintStyle:
+                                      const TextStyle(color: Colors.white),
                                   enabledBorder: const UnderlineInputBorder(
                                       borderSide:
                                           BorderSide(color: Colors.white)),
@@ -238,7 +238,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             thickness: 2,
                           ),
                         ),
-                        TextWidget(text: 'OR', color: Colors.white, textSize: 16),
+                        TextWidget(
+                            text: 'OR', color: Colors.white, textSize: 16),
                         const Expanded(
                           child: Divider(
                             color: Colors.white,
@@ -252,8 +253,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     AuthButton(
                       function: () {
-                        GlobalMethods.navigateTo(
-                            context, BottomBarScreen.routeName);
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => const FetchScreen()));
                       },
                       buttonText: 'Continue as a guest',
                       color: Colors.black,
@@ -264,8 +265,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     RichText(
                       text: TextSpan(
                           text: 'Don\'t have an account?',
-                          style:
-                              const TextStyle(color: Colors.white, fontSize: 18),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 18),
                           children: [
                             TextSpan(
                                 text: '  Sign up',

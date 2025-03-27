@@ -4,7 +4,6 @@ import 'package:grocery_app/widgets/empty_product_widget.dart';
 import 'package:grocery_app/widgets/on_sale_widget.dart';
 import 'package:grocery_app/widgets/text_widget.dart';
 import 'package:provider/provider.dart';
-
 import '../models/product_model.dart';
 import '../provider/product_provider.dart';
 import '../services/utils.dart';
@@ -34,8 +33,8 @@ class OnSaleScreen extends StatelessWidget {
       ),
       body: productOnSale.isEmpty
           ? const EmptyProductWidget(
-        text: 'No product on sale yet!, \nStay tuned',
-      )
+              text: 'No product on sale yet!, \nStay tuned',
+            )
           : GridView.count(
               padding: EdgeInsets.zero,
               childAspectRatio: size.width / (size.height * .45),

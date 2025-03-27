@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:grocery_app/inner_screens/product_details.dart';
 import 'package:grocery_app/models/product_model.dart';
 import 'package:grocery_app/provider/cart_provider.dart';
+import 'package:grocery_app/provider/viewed_provider.dart';
 import 'package:grocery_app/provider/wishlist_provider.dart';
 import 'package:grocery_app/widgets/heart_btn.dart';
 import 'package:grocery_app/widgets/price_widget.dart';
@@ -49,6 +50,8 @@ class _FeedWidgetState extends State<FeedWidget> {
     final cartProvider = Provider.of<CartProvider>(context);
     bool? isInCart = cartProvider.getCartItems.containsKey(productModel.id);
     final wishlistProvider = Provider.of<WishlistProvider>(context);
+    final viewedProdProvider = Provider.of<ViewedProvider>(context);
+
     bool? isInWishlist =
         wishlistProvider.getWishlistItems.containsKey(productModel.id);
     return Padding(
@@ -58,6 +61,7 @@ class _FeedWidgetState extends State<FeedWidget> {
         color: Colors.blueAccent.withOpacity(0.1),
         child: InkWell(
           onTap: () {
+            viewedProdProvider.addProductToHistory(productId: productModel.id);
             Navigator.pushNamed(context, ProductDetails.routeName,
                 arguments: productModel.id);
           },
@@ -142,17 +146,18 @@ class _FeedWidgetState extends State<FeedWidget> {
                 child: TextButton(
                   onPressed: isInCart
                       ? null
-                      : () {
+                      : () async {
                           final User? user = auth.currentUser;
                           if (user == null) {
                             GlobalMethods.errorDialog(
                                 subtitle: "No user found, please login first",
                                 context: context);
                           }
-                          cartProvider.addProductToCart(
+                          await GlobalMethods.addToCart(
                               productId: productModel.id,
                               quantity:
-                                  int.parse(_quantityTextController.text));
+                                  int.parse(_quantityTextController.text), context: context);
+                          await cartProvider.fetchCart();
                         },
                   style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(

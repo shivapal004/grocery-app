@@ -78,15 +78,16 @@ class _ViewedWidgetState extends State<ViewedWidget> {
                   borderRadius: BorderRadius.circular(12),
                   onTap: isInCart
                       ? null
-                      : () {
+                      : () async {
                           final User? user = auth.currentUser;
                           if (user == null) {
                             GlobalMethods.errorDialog(
                                 subtitle: "No user found, please login first",
                                 context: context);
                           }
-                          cartProvider.addProductToCart(
-                              productId: getCurrProduct.id, quantity: 1);
+                          await GlobalMethods.addToCart(
+                              productId: getCurrProduct.id, quantity: 1, context: context);
+                          await cartProvider.fetchCart();
                         },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),

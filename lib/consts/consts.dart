@@ -14,6 +14,4 @@ class Consts {
     'assets/images/landing/store.jpg',
     'assets/images/landing/vergtablebg.jpg',
   ];
-
-
 }

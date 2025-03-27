@@ -11,13 +11,14 @@ class ViewedProvider with ChangeNotifier {
   void addProductToHistory({required String productId}) {
     _viewedProdListItems.putIfAbsent(
         productId,
-            () => ViewedModel(
-            id: DateTime.now().toString(),
-            productId: productId,));
+        () => ViewedModel(
+              id: DateTime.now().toString(),
+              productId: productId,
+            ));
     notifyListeners();
   }
 
-  void clearHistory(){
+  void clearHistory() {
     _viewedProdListItems.clear();
     notifyListeners();
   }

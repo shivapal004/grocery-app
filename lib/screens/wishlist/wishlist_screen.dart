@@ -25,7 +25,7 @@ class WishlistScreen extends StatelessWidget {
     return wishlistItemList.isEmpty
         ? const EmptyScreen(
             title: 'Your wishlist is empty',
-            subtitle: 'Explore more and shortlist some items',
+            subtitle: '',
             imagePath: 'assets/images/wishlist.png',
             buttonText: 'Add a wish')
         : Scaffold(
@@ -43,8 +43,9 @@ class WishlistScreen extends StatelessWidget {
                       GlobalMethods.warningDialog(
                           title: 'Empty you wishlist',
                           subtitle: 'Are you sure?',
-                          function: () {
-                            wishlistProvider.clearWishlist();
+                          function: () async{
+                            await wishlistProvider.clearOnlineWishlist();
+                            wishlistProvider.clearLocalWishlist();
                           },
                           context: context);
                     },

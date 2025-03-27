@@ -1,13 +1,14 @@
 import 'package:card_swiper/card_swiper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:grocery_app/screens/auth/login_screen.dart';
-import 'package:grocery_app/screens/bottom_bar_screen.dart';
 import 'package:grocery_app/screens/loading_manager.dart';
 import '../../consts/consts.dart';
 import '../../consts/firebase_consts.dart';
+import '../../fetch_screen.dart';
 import '../../services/global_methods.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/text_widget.dart';
@@ -50,17 +51,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _submitFormOnRegister() async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
-    setState(() {
-      _isLoading = true;
-    });
+
     if (isValid) {
       _formKey.currentState!.save();
+      setState(() {
+        _isLoading = true;
+      });
       try {
         await auth.createUserWithEmailAndPassword(
             email: _emailController.text.toLowerCase().trim(),
             password: _passwordController.text.trim());
+        final User? user = auth.currentUser;
+        user!.updateDisplayName(_fullNameController.text);
+        user.reload();
+        await FirebaseFirestore.instance.collection('users').doc(user!.uid).set(
+            {
+              'id': user.uid,
+              'name': _fullNameController.text,
+              'email': _emailController.text.toLowerCase(),
+              'shipping-address': _addressTextController.text,
+              'userWish': [],
+              'userCart': [],
+              'createdAt': Timestamp.now(),
+            });
         Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (_) => const BottomBarScreen()));
+            MaterialPageRoute(builder: (_) => const FetchScreen()));
         print('success');
       } on FirebaseException catch (error) {
         GlobalMethods.errorDialog(
@@ -261,7 +276,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               focusNode: _addressFocusNode,
                               keyboardType: TextInputType.text,
                               validator: (value) {
-                                if (value!.isEmpty || value.length < 10) {
+                                if (value!.isEmpty || value.length < 5) {
                                   return 'Enter a valid address';
                                 } else {
                                   return null;
@@ -295,11 +310,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                         buttonText: 'Sign up'),
                     const SizedBox(
-                      height: 10,
+                      height: 20,
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
+
                     RichText(
                       text: TextSpan(
                           text: 'Already a user?',

@@ -8,7 +8,6 @@ import 'package:grocery_app/services/utils.dart';
 import 'package:grocery_app/widgets/feed_widget.dart';
 import 'package:grocery_app/widgets/on_sale_widget.dart';
 import 'package:provider/provider.dart';
-
 import '../consts/consts.dart';
 import '../models/product_model.dart';
 import '../provider/product_provider.dart';
@@ -16,6 +15,7 @@ import '../widgets/text_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/HomeScreen';
+
   const HomeScreen({super.key});
 
   @override
@@ -34,13 +34,13 @@ class _HomeScreenState extends State<HomeScreen> {
     List<ProductModel> productOnSale = productProvider.getOnSaleProducts;
 
     return Scaffold(
-      appBar: AppBar(
-        title: TextWidget(
-            text: "Home Screen",
-            color: utils.color,
-            textSize: 20,
-            isTitle: true),
-      ),
+      // appBar: AppBar(
+      //   title: TextWidget(
+      //       text: "Home Screen",
+      //       color: utils.color,
+      //       textSize: 20,
+      //       isTitle: true),
+      // ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -56,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 autoplay: true,
                 itemCount: Consts.offerImages.length,
                 pagination: const SwiperPagination(
-                    // alignment: Alignment.bottomCenter,
+                    alignment: Alignment.bottomCenter,
                     builder: DotSwiperPaginationBuilder(
                         color: Colors.white, activeColor: Colors.red)),
                 control: const SwiperControl(color: Colors.black),
@@ -71,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.blue,
                 textSize: 18,
                 isTitle: true,
+                maxLines: 1,
               ),
             ),
             Row(
@@ -129,6 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.blue,
                       textSize: 18,
                       isTitle: true,
+                      maxLines: 1,
                     ),
                   ),
                 ],
@@ -141,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
               childAspectRatio: size.width / (size.height * .55),
               crossAxisCount: 2,
               children: List.generate(
-                  allProducts.length < 4 ? 4 : allProducts.length, (index) {
+                  allProducts.length < 4 ? allProducts.length : 4, (index) {
                 return ChangeNotifierProvider.value(
                   value: allProducts[index],
                   child: const FeedWidget(),

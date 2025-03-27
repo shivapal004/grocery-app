@@ -51,7 +51,7 @@ class _CartWidgetState extends State<CartWidget> {
     final cartProvider = Provider.of<CartProvider>(context);
     final wishlistProvider = Provider.of<WishlistProvider>(context);
     bool? isInWishlist =
-    wishlistProvider.getWishlistItems.containsKey(getCurrentProduct.id);
+        wishlistProvider.getWishlistItems.containsKey(getCurrentProduct.id);
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, ProductDetails.routeName,
@@ -153,8 +153,11 @@ class _CartWidgetState extends State<CartWidget> {
                       child: Column(
                         children: [
                           InkWell(
-                            onTap: () {
-                              cartProvider.removeOneItem(cartModel.productId);
+                            onTap: () async {
+                              await cartProvider.removeOneItem(
+                                  productId: cartModel.productId,
+                                  cartId: cartModel.id,
+                                  quantity: cartModel.quantity);
                             },
                             child: const Icon(
                               CupertinoIcons.cart_badge_minus,
@@ -164,9 +167,13 @@ class _CartWidgetState extends State<CartWidget> {
                           const SizedBox(
                             height: 5,
                           ),
-                           HeartBtn(productId: getCurrentProduct.id, isInWishlist: isInWishlist,),
+                          HeartBtn(
+                            productId: getCurrentProduct.id,
+                            isInWishlist: isInWishlist,
+                          ),
                           TextWidget(
-                            text: '\$${usedPrice.toStringAsFixed(2)}',
+                            text:
+                                '\$${(usedPrice * int.parse(_quantityTextController.text)).toStringAsFixed(2)}',
                             color: color,
                             textSize: 16,
                             maxLines: 1,

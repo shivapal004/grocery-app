@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:grocery_app/inner_screens/feed_screen.dart';
-import 'package:grocery_app/screens/bottom_bar_screen.dart';
-import 'package:grocery_app/screens/home_screen.dart';
 import 'package:grocery_app/services/global_methods.dart';
 import 'package:grocery_app/widgets/text_widget.dart';
 
@@ -71,7 +69,7 @@ class EmptyScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: TextWidget(
                     text: buttonText,
-                    color: Colors.grey.shade800,
+                    color: color,
                     textSize: 20,
                     isTitle: true,
                   ),

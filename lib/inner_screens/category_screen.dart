@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:grocery_app/consts/consts.dart';
 import 'package:grocery_app/models/product_model.dart';
 import 'package:grocery_app/provider/product_provider.dart';
 import 'package:grocery_app/widgets/back_widget.dart';
 import 'package:grocery_app/widgets/empty_product_widget.dart';
 import 'package:provider/provider.dart';
-
 import '../services/utils.dart';
 import '../widgets/feed_widget.dart';
 import '../widgets/text_widget.dart';
@@ -22,6 +20,7 @@ class CategoryScreen extends StatefulWidget {
 class _CategoryScreenState extends State<CategoryScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchTextFocusNode = FocusNode();
+  List<ProductModel> productSearchList = [];
 
   @override
   void dispose() {
@@ -42,9 +41,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        leading: BackWidget(),
+        leading: const BackWidget(),
         title: TextWidget(
-          text: 'All Products',
+          text: categoryName,
           color: color,
           textSize: 20,
           isTitle: true,
@@ -52,8 +51,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
       ),
       body: productByCategory.isEmpty
           ? const EmptyProductWidget(
-        text: 'No product belong to this category',
-      )
+              text: 'No product belong to this category',
+            )
           : SingleChildScrollView(
               child: Column(
                 children: [
@@ -65,7 +64,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         focusNode: _searchTextFocusNode,
                         controller: _searchController,
                         onChanged: (value) {
-                          setState(() {});
+                          setState(() {
+                            productSearchList =
+                                productProvider.searchQuery(value);
+                          });
                         },
                         decoration: InputDecoration(
                             focusedBorder: OutlineInputBorder(
@@ -92,19 +94,27 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       ),
                     ),
                   ),
-                  GridView.count(
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    childAspectRatio: size.width / (size.height * .55),
-                    crossAxisCount: 2,
-                    children: List.generate(productByCategory.length, (index) {
-                      return ChangeNotifierProvider.value(
-                        value: productByCategory[index],
-                        child: const FeedWidget(),
-                      );
-                    }),
-                  ),
+                  _searchController.text.isNotEmpty && productSearchList.isEmpty
+                      ? const EmptyProductWidget(
+                          text: 'No product found, please try another keyword')
+                      : GridView.count(
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          childAspectRatio: size.width / (size.height * .55),
+                          crossAxisCount: 2,
+                          children: List.generate(
+                              _searchController.text.isNotEmpty
+                                  ? productSearchList.length
+                                  : productByCategory.length, (index) {
+                            return ChangeNotifierProvider.value(
+                              value: _searchController.text.isNotEmpty
+                                  ? productSearchList[index]
+                                  : productByCategory[index],
+                              child: const FeedWidget(),
+                            );
+                          }),
+                        ),
                 ],
               ),
             ),

@@ -3,7 +3,6 @@ import 'package:grocery_app/widgets/text_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../inner_screens/category_screen.dart';
-import '../inner_screens/product_details.dart';
 import '../provider/dark_theme_provider.dart';
 
 class CategoryWidget extends StatelessWidget {
